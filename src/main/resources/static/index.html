@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sınavlar</title>
+</head>
+<body>
+<h2>Sınav Listesi</h2>
+<ul id="examList"></ul>
+
+<script>
+    async function loadExams() {
+        try {
+            const res = await fetch('http://localhost:8080/exams', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('jwtToken')
+                }
+            });
+
+            if (res.status === 401) {
+                alert('Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
+                window.location.href = '/static/login.html';
+                return;
+            }
+
+            const exams = await res.json();
+            const list = document.getElementById('examList');
+            exams.forEach(exam => {
+                const li = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = `exam.html?id=${exam.id}`;
+                link.textContent = exam.name;
+                li.appendChild(link);
+                list.appendChild(li);
+            });
+        } catch (e) {
+            console.error('Error loading exams:', e);
+        }
+    }
+
+    loadExams();
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "name": "Genel Kültür Testi",
+    "questions": [
+      {
+        "id": 101,
+        "text": "Güneş sistemindeki en büyük gezegen hangisidir?",
+        "type": "MULTIPLE_CHOICE",
+        "options": ["Mars", "Jüpiter", "Dünya", "Satürn"],
+        "correctAnswer": "Jüpiter"
+      },
+      {
+        "id": 102,
+        "text": "Dünyanın en büyük kıtası hangisidir?",
+        "type": "CLASSIC",
+        "correctAnswer": "Asya"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Coğrafya Sınavı",
+    "questions": [
+      {
+        "id": 201,
+        "text": "Türkiye'nin en uzun nehri hangisidir?",
+        "type": "CLASSIC",
+        "correctAnswer": "Kızılırmak"
+      },
+      {
+        "id": 202,
+        "text": "Çin Seddi hangi kıtada bulunur?",
+        "type": "MULTIPLE_CHOICE",
+        "options": ["Afrika", "Avrupa", "Asya", "Amerika"],
+        "correctAnswer": "Asya"
+      }
+    ]
+  }
+]

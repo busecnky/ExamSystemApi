@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<h2>Login</h2>
+<form id="loginForm">
+    <label>Username:</label>
+    <input type="text" id="username" required><br><br>
+    <label>Password:</label>
+    <input type="password" id="password" required><br><br>
+    <button type="submit">Login</button>
+</form>
+
+<p id="error" style="color: red;"></p>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const errorElement = document.getElementById("error");
+
+        try {
+            const res = await fetch("http://localhost:8080/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem("jwtToken", data.token);
+                console.log(data.token)
+                window.location.href = "index.html";
+            } else {
+                errorElement.textContent = data.error || "Login failed. Please check your credentials.";
+            }
+        } catch (err) {
+            console.error("Error during login:", err);
+            errorElement.textContent = "Server error. Please try again later.";
+        }
+    });
+</script>
+</body>
+</html>

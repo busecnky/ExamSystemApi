@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sınav</title>
+</head>
+<body>
+<h2 id="examTitle"></h2>
+<form id="examForm"></form>
+<button id="submitBtn">Submit</button>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const examId = urlParams.get('id');
+    const token = localStorage.getItem('jwtToken');
+
+    async function handleUnauthorized(response){
+        if (response.status === 401) {
+            alert('Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
+            window.location.href = '/static/login.html';
+            return true;
+        }
+    }
+
+    async function loadExam() {
+        const res = await fetch(`http://localhost:8080/exams/${examId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (await handleUnauthorized(res)) return;
+
+        const exam = await res.json();
+        document.getElementById('examTitle').textContent = exam.name;
+        const form = document.getElementById('examForm');
+
+        exam.questions.forEach((q, qIndex) => {
+            const div = document.createElement('div');
+            div.innerHTML = `<p>${q.text}</p>`;
+
+            if (q.type === "MULTIPLE_CHOICE") {
+                q.options.forEach((opt, optIndex) => {
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'q' + q.id;
+                    radio.value = opt;
+                    radio.dataset.index = optIndex;
+                    div.appendChild(radio);
+                    div.appendChild(document.createTextNode(opt));
+                    div.appendChild(document.createElement('br'));
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.name = 'q' + q.id;
+                div.appendChild(textarea);
+            }
+
+            form.appendChild(div);
+        });
+    }
+
+    document.getElementById('submitBtn').onclick = async () => {
+        const form = document.getElementById('examForm');
+        const answers = [];
+
+        for (let element of form.elements) {
+            if (!element.name) continue;
+            const qId = parseInt(element.name.replace('q',''));
+            if (element.type === 'radio' && element.checked) {
+                answers.push({
+                    questionId: qId,
+                    userId: 1,
+                    optionId: parseInt(element.dataset.index),
+                    textAnswer: null
+                });
+            } else if (element.tagName === 'TEXTAREA') {
+                answers.push({
+                    questionId: qId,
+                    userId: 1,
+                    optionId: null,
+                    textAnswer: element.value
+                });
+            }
+        }
+
+        try {
+            const res = await fetch('http://localhost:8080/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    examId: parseInt(examId),
+                    answers: answers
+                })
+            });
+
+            if (await handleUnauthorized(res)) return;
+
+            const data = await res.json();
+            console.log("Yanıt:", data);
+            alert('Puanınız: ' + data.score);
+        } catch (error) {
+            console.error("Gönderim hatası:", error);
+            alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+        }
+    };
+
+    loadExam();
+</script>
+</body>
+</html>
